@@ -1,0 +1,12 @@
+{
+  "crons": [
+    {
+      "path": "/api/cron/notify-new",
+      "schedule": "0 14 * * *"
+    },
+    {
+      "path": "/api/cron/search-analytics",
+      "schedule": "30 6 * * *"
+    }
+  ]
+}
