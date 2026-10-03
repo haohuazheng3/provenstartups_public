@@ -1,0 +1,783 @@
+@import "tailwindcss";
+
+/*
+ * ProvenStartups 设计系统 v4 —— "Blue, alive"(2026-09-30)
+ *
+ * 站长的三条要求叠在一起:全站 Poppins、主题色是蓝色(不要铜/棕/红那一路暖色)、风格要有活力。
+ *   · 底:冷白(带一点蓝),顶部一片蓝/青的极光;模块是纯白卡片,阴影带一点蓝
+ *   · 主色:电光蓝 brand(#1f5eff)。主按钮、入会按钮、选中态、链接、强调短语(蓝→青渐变字)都是它
+ *   · 俱乐部卡片(.panel-club)是浅底:蓝色渐变描边 + 顶部一层极淡的蓝 + 蓝色光晕,
+ *     里面的价格、对勾、徽章、按钮用蓝。**不整块铺蓝** —— 站长嫌蓝色太多(2026-09-30)。
+ *     全站唯一的深色面是页脚的深海军蓝(.ink)
+ *   · 钱仍然是绿色,只给收入数字;证据等级四色只做小圆点与印章
+ *   · 字:Poppins(标题 600、界面 500、正文 400);等宽只给"打印出来"的东西(收据行、印章、代码、网址)
+ *   · 活力来自动效而不是更多颜色:呼吸点、按钮光晕、卡片悬停抬起、hero 里轻轻浮动的收据
+ *   · 专属构件不变:收据(.receipt)、印章(.stamp)、点线引导(.leader)
+ */
+@theme {
+  /* ── 底与面 ── */
+  --color-paper: #f4f7fd;
+  --color-paper-2: #e8eefb;
+  --color-sheet: #ffffff;
+  --color-sheet-2: #f5f8ff;
+
+  /* ── 主色:电光蓝 ── */
+  --color-brand: #1f5eff;
+  --color-brand-2: #4d8dff;
+  --color-brand-3: #1648e0;
+  --color-brand-soft: #e6eeff;
+  --color-sky: #9ad7ff;
+
+  /* ── 深:海军蓝(页脚、深色面) ── */
+  --color-ink: #0b1437;
+  --color-ink-2: #101d4d;
+  --color-ink-3: #172a6e;
+
+  /* ── 浅底上的字 ── */
+  --color-t1: #0c1633;
+  --color-t2: #44506e;
+  --color-t3: #616c88;
+  --color-t4: #a2adc6;
+
+  /* ── 蓝/深底上的字 ── */
+  --color-p1: #ffffff;
+  --color-p2: #dbe6ff;
+  --color-p3: #b8cbfb;
+
+  /* ── 线 ── */
+  --color-line: #e1e7f3;
+  --color-line-2: #ccd6ea;
+
+  /* ── 钱:只给收入数字 ── */
+  --color-money: #078555;
+  --color-money-soft: #e2f6ec;
+
+  /* ── 证据编码 ── */
+  --color-ev-hard: #10a86b;
+  --color-ev-founder: #1f5eff;
+  --color-ev-creator: #8b5cf6;
+  --color-ev-unproven: #b3bdd1;
+
+  /* ── 旧名兼容 ── */
+  --color-bg: #f4f7fd;
+  --color-s1: #ffffff;
+  --color-s2: #f5f8ff;
+  --color-s3: #e8eefb;
+
+  --font-sans: var(--font-poppins), "Poppins", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, "SF Mono", monospace;
+  --font-display: var(--font-poppins), "Poppins", ui-sans-serif, system-ui, sans-serif;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  scroll-behavior: smooth;
+  background: var(--color-paper);
+}
+
+body {
+  background: var(--color-paper);
+  color: var(--color-t1);
+  min-height: 100dvh;
+  font-family: var(--font-sans);
+  font-size: 15.5px;
+  line-height: 1.65;
+  letter-spacing: 0;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* 顶部的蓝/青极光 —— 明亮页面的活力来源。固定在视口顶部,不随内容滚走 */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0 0 auto 0;
+  height: 72vh;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(760px 380px at 10% -8%, rgba(31, 94, 255, 0.2), transparent 62%),
+    radial-gradient(680px 340px at 54% -14%, rgba(87, 200, 255, 0.24), transparent 60%),
+    radial-gradient(720px 360px at 97% -6%, rgba(99, 102, 241, 0.16), transparent 60%);
+}
+
+body > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* 组件类放进 components 层:否则未分层的 .btn/.chip 会压过 Tailwind 的 hidden / sm:inline-flex 等工具类 */
+@layer components {
+/* ══════════════ 卡片(面板) ══════════════ */
+.panel {
+  border: 1px solid var(--color-line);
+  border-radius: 20px;
+  background: var(--color-sheet);
+  /* 阴影带一点蓝:白卡片在冷白底上才"浮"得起来,也更有精神 */
+  box-shadow:
+    0 1px 2px rgba(12, 22, 51, 0.04),
+    0 14px 34px -18px rgba(31, 94, 255, 0.22);
+}
+
+/* 旧名保留:只是一道 1px 的高光 */
+.panel-lit {
+  position: relative;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.9),
+    0 1px 2px rgba(12, 22, 51, 0.04),
+    0 14px 34px -18px rgba(31, 94, 255, 0.22);
+}
+
+.panel-2 {
+  border: 1px solid var(--color-line);
+  border-radius: 20px;
+  background: var(--color-sheet-2);
+}
+
+a.panel,
+.panel-hover {
+  transition:
+    transform 0.18s ease,
+    box-shadow 0.18s ease,
+    border-color 0.18s ease;
+}
+
+a.panel:hover,
+.panel-hover:hover {
+  transform: translateY(-3px);
+  border-color: rgba(31, 94, 255, 0.35);
+  box-shadow:
+    0 1px 2px rgba(12, 22, 51, 0.04),
+    0 22px 44px -20px rgba(31, 94, 255, 0.42);
+}
+
+/* ══════════════ 深色面与俱乐部卡片 ══════════════
+   .ink = 深海军蓝(只有页脚):里面的字用 text-p1/p2/p3,按钮与徽章自动反色。
+   .panel-club = 俱乐部卡片:浅底、蓝色渐变描边、蓝色光晕;里面照常用 text-t1/t2/t3,蓝色只做点缀。 */
+.ink {
+  background:
+    radial-gradient(760px 320px at 8% 0%, rgba(31, 94, 255, 0.38), transparent 62%),
+    radial-gradient(620px 280px at 96% 100%, rgba(87, 200, 255, 0.14), transparent 60%),
+    var(--color-ink);
+  color: var(--color-p1);
+}
+
+.panel-club {
+  /* 描边是渐变:第一层铺在 padding-box 上当底,第二层铺到 border-box 露出 1.5px 的边 */
+  border: 1.5px solid transparent;
+  border-radius: 22px;
+  background:
+    linear-gradient(180deg, #eef4ff 0%, #ffffff 52%) padding-box,
+    linear-gradient(135deg, #1f5eff 0%, #4d8dff 46%, #57c8ff 100%) border-box;
+  color: var(--color-t1);
+  box-shadow:
+    0 1px 2px rgba(12, 22, 51, 0.05),
+    0 22px 46px -22px rgba(31, 94, 255, 0.5);
+}
+
+.ink .label,
+.ink .eyebrow {
+  color: var(--color-p3);
+}
+
+.ink .hairline {
+  background: rgba(255, 255, 255, 0.18);
+}
+
+/* ══════════════ 收据 ══════════════
+   外层负责阴影(drop-shadow 跟随锯齿),内层负责纸与锯齿(mask)。
+   用法:<div class="receipt"><div class="receipt-sheet p-5">…</div></div> */
+.receipt {
+  filter:
+    drop-shadow(0 1px 1px rgba(12, 22, 51, 0.06))
+    drop-shadow(0 18px 26px rgba(31, 94, 255, 0.16));
+}
+
+.receipt-sheet {
+  position: relative;
+  background: var(--color-sheet);
+  border: 1px solid var(--color-line);
+  border-bottom: 0;
+  border-radius: 16px 16px 0 0;
+  padding-bottom: 12px;
+  -webkit-mask:
+    linear-gradient(#000 0 0) top / 100% calc(100% - 9px) no-repeat,
+    conic-gradient(from -45deg at 50% 100%, #000 90deg, transparent 0) bottom / 14px 9px repeat-x;
+  mask:
+    linear-gradient(#000 0 0) top / 100% calc(100% - 9px) no-repeat,
+    conic-gradient(from -45deg at 50% 100%, #000 90deg, transparent 0) bottom / 14px 9px repeat-x;
+}
+
+/* 收据行:标签 …… 值 */
+.leader {
+  flex: 1 1 auto;
+  min-width: 1rem;
+  margin: 0 0.55rem;
+  border-bottom: 1.5px dotted var(--color-line-2);
+  transform: translateY(-0.32em);
+}
+
+/* ══════════════ 印章 ══════════════ */
+.stamp {
+  display: inline-block;
+  padding: 0.3rem 0.6rem;
+  border: 1.5px solid currentColor;
+  border-radius: 5px;
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  line-height: 1;
+  transform: rotate(-4deg);
+  opacity: 0.92;
+  white-space: nowrap;
+}
+
+/* ══════════════ 俱乐部徽章 ══════════════ */
+.badge-club {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.42rem;
+  height: 23px;
+  padding: 0 0.66rem;
+  border-radius: 999px;
+  background: linear-gradient(100deg, #1f5eff 0%, #3a9bff 100%);
+  color: #fff;
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  box-shadow: 0 6px 14px -6px rgba(31, 94, 255, 0.7);
+}
+
+.badge-club::before {
+  content: "";
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.35);
+}
+
+.ink .badge-club {
+  background: #fff;
+  color: var(--color-brand);
+  box-shadow: none;
+}
+
+.ink .badge-club::before {
+  background: var(--color-brand);
+  box-shadow: 0 0 0 2px rgba(31, 94, 255, 0.22);
+}
+
+/* ══════════════ 数据行 ══════════════
+   hover 时左侧亮出一道主色 —— 明亮界面里最轻快的反馈 */
+.row {
+  display: grid;
+  align-items: center;
+  position: relative;
+  border-bottom: 1px solid var(--color-line);
+  transition: background-color 0.14s ease;
+}
+
+.row:last-child {
+  border-bottom: none;
+}
+
+.row::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: linear-gradient(180deg, var(--color-brand-2), var(--color-brand));
+  opacity: 0;
+  transition: opacity 0.14s ease;
+}
+
+a.row:hover {
+  background: var(--color-sheet-2);
+}
+
+a.row:hover::before {
+  opacity: 1;
+}
+
+/* ══════════════ 数字 ══════════════ */
+.mono {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+
+.money {
+  color: var(--color-money);
+}
+
+/* ══════════════ 按钮 ══════════════ */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  height: 40px;
+  padding: 0 1.15rem;
+  border: 1px solid var(--color-line-2);
+  border-radius: 999px;
+  background: var(--color-sheet);
+  color: var(--color-t1);
+  font-size: 0.84rem;
+  font-weight: 500;
+  letter-spacing: 0;
+  white-space: nowrap;
+  cursor: pointer;
+  box-shadow: 0 1px 2px rgba(12, 22, 51, 0.06);
+  transition:
+    background-color 0.16s ease,
+    border-color 0.16s ease,
+    color 0.16s ease,
+    transform 0.16s ease,
+    box-shadow 0.16s ease;
+}
+
+.btn:hover {
+  background: var(--color-sheet-2);
+  border-color: rgba(31, 94, 255, 0.45);
+  color: var(--color-brand);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px -6px rgba(31, 94, 255, 0.35);
+}
+
+.btn:active {
+  transform: translateY(0);
+}
+
+/* 主按钮与入会按钮:同一支蓝。带一圈同色光晕,悬停时更亮、抬起 */
+.btn-primary,
+.btn-club {
+  background: linear-gradient(180deg, #4480ff 0%, #1f5eff 100%);
+  border-color: #1f5eff;
+  color: #fff;
+  font-weight: 600;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.32),
+    0 1px 2px rgba(12, 22, 51, 0.14),
+    0 10px 22px -10px rgba(31, 94, 255, 0.8);
+}
+
+.btn-primary:hover,
+.btn-club:hover {
+  background: linear-gradient(180deg, #5a90ff 0%, #2a66ff 100%);
+  border-color: #2a66ff;
+  color: #fff;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.36),
+    0 3px 8px -2px rgba(12, 22, 51, 0.18),
+    0 16px 30px -10px rgba(31, 94, 255, 0.85);
+}
+
+/* 深色页脚里的按钮反色:主按钮变白底蓝字,次按钮变透明描边 */
+.ink .btn {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.3);
+  color: #fff;
+  box-shadow: none;
+}
+
+.ink .btn:hover {
+  background: rgba(255, 255, 255, 0.16);
+  border-color: rgba(255, 255, 255, 0.5);
+  color: #fff;
+}
+
+.ink .btn-primary,
+.ink .btn-club {
+  background: #fff;
+  border-color: #fff;
+  color: var(--color-brand);
+  font-weight: 600;
+  box-shadow:
+    0 1px 2px rgba(12, 22, 51, 0.16),
+    0 12px 26px -10px rgba(7, 23, 92, 0.65);
+}
+
+.ink .btn-primary:hover,
+.ink .btn-club:hover {
+  background: #eef4ff;
+  border-color: #eef4ff;
+  color: var(--color-brand-3);
+}
+
+.btn-money {
+  background: var(--color-money);
+  border-color: var(--color-money);
+  color: #fff;
+  font-weight: 600;
+}
+
+.btn-money:hover {
+  background: #066f47;
+  border-color: #066f47;
+  color: #fff;
+}
+
+.btn-quiet {
+  background: transparent;
+  border-color: transparent;
+  color: var(--color-t2);
+  box-shadow: none;
+}
+
+.btn-quiet:hover {
+  background: var(--color-brand-soft);
+  border-color: transparent;
+  color: var(--color-brand);
+  transform: none;
+  box-shadow: none;
+}
+
+.btn-lg {
+  height: 48px;
+  padding: 0 1.5rem;
+  font-size: 0.92rem;
+}
+
+.btn-sm {
+  height: 32px;
+  padding: 0 0.9rem;
+  font-size: 0.76rem;
+}
+
+/* ══════════════ 标记 ══════════════ */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.32rem;
+  height: 24px;
+  padding: 0 0.6rem;
+  border: 1px solid var(--color-line-2);
+  border-radius: 999px;
+  background: var(--color-sheet);
+  color: var(--color-t2);
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0;
+  white-space: nowrap;
+}
+
+.chip-lg {
+  height: 30px;
+  padding: 0 0.8rem;
+  font-size: 0.78rem;
+}
+
+.chip-solid,
+.chip-on,
+.chip-brand {
+  background: var(--color-brand);
+  border-color: var(--color-brand);
+  color: #fff;
+  font-weight: 500;
+}
+
+.chip-money {
+  background: var(--color-money-soft);
+  border-color: #b5e3cb;
+  color: var(--color-money);
+}
+
+/* 首页的"正在更新"小药丸:一颗会呼吸的绿点 */
+.chip-live {
+  height: 28px;
+  padding: 0 0.8rem 0 0.7rem;
+  border-color: rgba(31, 94, 255, 0.22);
+  background: rgba(255, 255, 255, 0.85);
+  color: var(--color-t1);
+  font-size: 0.74rem;
+  box-shadow: 0 6px 18px -10px rgba(31, 94, 255, 0.5);
+}
+
+.pulse-dot {
+  position: relative;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--color-ev-hard);
+  flex: none;
+}
+
+.pulse-dot::after {
+  content: "";
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  border: 1.5px solid var(--color-ev-hard);
+  opacity: 0;
+  animation: pulse-ring 1.9s ease-out infinite;
+}
+
+a.chip,
+button.chip {
+  cursor: pointer;
+  transition:
+    background-color 0.14s ease,
+    border-color 0.14s ease,
+    color 0.14s ease;
+}
+
+a.chip:hover,
+button.chip:hover {
+  border-color: rgba(31, 94, 255, 0.5);
+  background: var(--color-brand-soft);
+  color: var(--color-brand);
+}
+
+a.chip-on:hover,
+button.chip-on:hover {
+  background: var(--color-brand-3);
+  border-color: var(--color-brand-3);
+  color: #fff;
+}
+
+.ink .chip {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.28);
+  color: #fff;
+}
+
+/* 证据色标 */
+.ev {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex: none;
+}
+
+.ev-hard {
+  background: var(--color-ev-hard);
+  box-shadow: 0 0 0 2.5px rgba(16, 168, 107, 0.16);
+}
+.ev-founder {
+  background: var(--color-ev-founder);
+  box-shadow: 0 0 0 2.5px rgba(31, 94, 255, 0.16);
+}
+.ev-creator {
+  background: var(--color-ev-creator);
+  box-shadow: 0 0 0 2.5px rgba(139, 92, 246, 0.16);
+}
+.ev-unproven {
+  background: var(--color-ev-unproven);
+}
+
+/* ══════════════ 排版 ══════════════ */
+.eyebrow,
+.label {
+  font-size: 0.64rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-t3);
+}
+
+/* 展示字重:大数字、章节号、收据抬头都用它(旧名 serif 保留,含义是 Poppins 600) */
+.serif {
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: -0.025em;
+}
+
+.h-display {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(2rem, 4.6vw, 3.4rem);
+  line-height: 1.06;
+  letter-spacing: -0.032em;
+}
+
+/* 强调短语:蓝→青的渐变字。Poppins 没有真正的斜体,用颜色说话 */
+.h-display em,
+.h-sec em,
+.serif em,
+.grad {
+  font-style: normal;
+  background: linear-gradient(92deg, #1f5eff 0%, #2f8dff 55%, #44bdf7 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: var(--color-brand);
+}
+
+/* 深色页脚上:强调短语改用浅青实色(渐变字在深底上看不清) */
+.ink :is(.h-display, .h-sec, .serif) em {
+  background: none;
+  -webkit-text-fill-color: currentColor;
+  color: var(--color-sky);
+}
+
+.h-sec {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1.3rem;
+  line-height: 1.2;
+  letter-spacing: -0.024em;
+}
+
+.prose-body {
+  font-size: 0.98rem;
+  line-height: 1.72;
+  color: var(--color-t2);
+}
+
+/* 正文里的链接:蓝字 + 浅蓝下划线,悬停时下划线变实 */
+.link {
+  color: var(--color-brand);
+  text-decoration: underline;
+  text-decoration-color: rgba(31, 94, 255, 0.32);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+  transition:
+    color 0.14s ease,
+    text-decoration-color 0.14s ease;
+}
+
+.link:hover {
+  color: var(--color-brand-3);
+  text-decoration-color: currentColor;
+}
+
+/* ══════════════ 杂项 ══════════════ */
+.locked {
+  filter: blur(4px);
+  opacity: 0.45;
+  user-select: none;
+  pointer-events: none;
+}
+
+/* 锁定段的"模糊正文":只画词形条,不放真文字 —— 会员内容一个字也不进 HTML */
+.ghost-text {
+  display: block;
+  filter: blur(1.6px);
+  user-select: none;
+  pointer-events: none;
+  -webkit-mask-image: linear-gradient(180deg, #000 10%, transparent 100%);
+  mask-image: linear-gradient(180deg, #000 10%, transparent 100%);
+}
+
+.ghost-word {
+  display: inline-block;
+  height: 0.6em;
+  margin: 0 0.4em 0.78em 0;
+  border-radius: 3px;
+  background: #7f93c9;
+  opacity: 0.38;
+  vertical-align: middle;
+}
+
+.hairline {
+  height: 1px;
+  background: var(--color-line);
+}
+
+.scroll-x {
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.scroll-x::-webkit-scrollbar {
+  display: none;
+}
+
+/* 表单 */
+.input {
+  width: 100%;
+  border: 1px solid var(--color-line-2);
+  border-radius: 12px;
+  background: var(--color-sheet);
+  padding: 0.6rem 0.85rem;
+  font-size: 0.9rem;
+  color: var(--color-t1);
+  outline: none;
+  transition:
+    border-color 0.14s ease,
+    box-shadow 0.14s ease;
+}
+
+.input:focus {
+  border-color: var(--color-brand);
+  box-shadow: 0 0 0 3px rgba(31, 94, 255, 0.16);
+}
+
+/* 入场 */
+.rise {
+  animation: rise 0.6s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+.rise-2 {
+  animation-delay: 0.08s;
+}
+
+.rise-3 {
+  animation-delay: 0.16s;
+}
+
+/* hero 里的收据轻轻浮动:动的是内层纸张,外层的旋转/悬停位移不受影响 */
+.float {
+  animation: float 7s ease-in-out infinite;
+}
+
+.float-2 {
+  animation-delay: -2.3s;
+}
+
+.float-3 {
+  animation-delay: -4.6s;
+}
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-7px);
+  }
+}
+
+@keyframes pulse-ring {
+  0% {
+    transform: scale(0.6);
+    opacity: 0.7;
+  }
+  100% {
+    transform: scale(1.7);
+    opacity: 0;
+  }
+}
+
+::selection {
+  background: rgba(31, 94, 255, 0.22);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
