@@ -1,0 +1,16 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "git": {
+    "deploymentEnabled": false
+  },
+  "crons": [
+    {
+      "path": "/api/cron/notify-new",
+      "schedule": "0 14 * * *"
+    },
+    {
+      "path": "/api/cron/search-analytics",
+      "schedule": "30 6 * * *"
+    }
+  ]
+}

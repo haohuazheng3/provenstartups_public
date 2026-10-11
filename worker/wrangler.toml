@@ -1,0 +1,7 @@
+name = "provenstartups-email"
+main = "email-worker.js"
+compatibility_date = "2026-01-01"
+
+[vars]
+SITE_URL = "https://provenstartups.com"
+# INBOUND_EMAIL_TOKEN 用 wrangler secret put 设置(不写入此文件)
