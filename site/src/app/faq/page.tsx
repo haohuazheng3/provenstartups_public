@@ -1,0 +1,92 @@
+import type { Metadata } from "next";
+import Link from "@/components/HoverLink";
+import { SITE } from "@/lib/site";
+
+export const metadata: Metadata = {
+  title: "FAQ",
+  description: `Common questions about ${SITE.name}: how ideas are verified, what membership includes, billing, and data sources.`,
+  alternates: { canonical: "/faq" },
+};
+
+const faqs = [
+  {
+    q: "Are these startup ideas actually verified?",
+    a: "Each idea carries an evidence label. ✅ Verified means third-party data (app-store estimates, public filings, tracked revenue). 🗣 Founder-reported means the founder said it on camera. 📎 Creator-reported means an analyst or creator estimated it. 🔮 High potential means unproven — our judgment that the pattern could work, clearly marked as such. We never present a claim as harder than it is.",
+  },
+  {
+    q: "Where does the data come from?",
+    a: "Public videos: founder interviews, indie-hacker breakdowns, and case-study content. Every breakdown links to its source video — for everyone — with timestamps that jump to where each figure is said. Members also read the exact quote, so you can verify any claim yourself.",
+  },
+  {
+    q: "What exactly do I get for free?",
+    a: `The first ${SITE.guestVisibleCount} ideas are free to read in full. For every other idea, the opening story, the first lines of each founder playbook, the revenue figure, its evidence grade, and every source link are open too. Membership ($${SITE.priceMonthly}/mo) opens everything else: every section, the full founder playbooks, the quick-reference cards, the exact quote behind each figure, the pain-point filters, 10 tailored build specs a week, a library export for your own AI, and The Drop: an email every 3 days on the 50–100 newest ideas. A free account lets you save filters for later; email alerts for free accounts are not active yet.`,
+  },
+  {
+    q: "What does membership add?",
+    a: `Everything past the first ${SITE.guestVisibleCount} ideas: every section of every breakdown, the four founder playbooks in full, the quick-reference cards, the exact quote behind each figure, the pain-point filters on the index, 10 tailored build specs a week you paste into Claude Code or Codex, a library export (every idea in one Markdown, JSON or CSV file for ChatGPT, Claude or Codex to analyze), and The Drop, an email every 3 days that walks you through the 50–100 newest ideas.`,
+  },
+  {
+    q: "Why are most ideas members-only?",
+    a: "Because the breakdowns are the product. Reading how a founder got their first customers, first dollar, and through the silent stretch is worth more than a headline number — and the freshest window-of-opportunity ideas lose value the moment thousands of people see them. The first fifty stay open so you can judge the work before you pay.",
+  },
+  {
+    q: "How often do you add new ideas?",
+    a: "Every 3 days, in batches of 50–100 newly found businesses from founder interviews and creator breakdowns. Members get The Drop the same morning: an email on what is worth stealing from the batch, plus the full list.",
+  },
+  {
+    q: "Can I cancel?",
+    a: "Cancel in one click from your account page — future charges stop immediately and you keep access through the period you paid for.",
+  },
+  {
+    q: "Do I need a password?",
+    a: "No. You enter your email, we send a one-time code, you're in. Same flow whether it's your first visit or your hundredth — no separate sign-up and sign-in to think about.",
+  },
+  {
+    q: "Are the revenue numbers audited?",
+    a: "No, and we say so on every page. These are founder statements, creator estimates, or third-party approximations. Treat them as directional evidence that a market exists, not as guaranteed outcomes.",
+  },
+  {
+    q: "Is this business advice?",
+    a: "No. It's editorial research. Starting a business carries real risk of losing money. Use these breakdowns as inputs to your own judgment.",
+  },
+];
+
+export default function FaqPage() {
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: faqs.map((f) => ({
+      "@type": "Question",
+      name: f.q,
+      acceptedAnswer: { "@type": "Answer", text: f.a },
+    })),
+  };
+
+  return (
+    <div className="mx-auto w-full max-w-2xl px-4 pt-8 sm:px-6 sm:pt-12">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <div className="pt-1 pb-5">
+        <span className="label">FAQ</span>
+        <h1 className="h-display mt-3 text-[1.9rem] sm:text-[2.5rem]">FAQ</h1>
+      </div>
+      <div className="mt-6 space-y-3">
+        {faqs.map((f) => (
+          <details key={f.q} className="panel group p-5 sm:p-6">
+            <summary className="h-sec cursor-pointer list-none pr-8 text-[1.2rem]">
+              {f.q}
+              <span className="float-right font-sans text-t4 transition-transform group-open:rotate-180">
+                ▾
+              </span>
+            </summary>
+            <p className="mt-3 text-[0.95rem] leading-relaxed text-t2">{f.a}</p>
+          </details>
+        ))}
+      </div>
+      <div className="mt-8 text-center">
+        <Link href="/contact" className="btn">
+          Still have a question?
+        </Link>
+      </div>
+    </div>
+  );
+}
